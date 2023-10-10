@@ -13,6 +13,40 @@
 #include "esp_flash.h"
 #include "esp_system.h"
 
+#define STACK_SIZE 10000
+#define tskIDLE_PRIORITY 1
+
+
+
+void vTask1Code(void * pVparameters)
+{
+    while(1){
+        printf("Message from task 1...\n");
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+    }
+}
+void createTask1(void){
+    static uint8_t ucParameterToPass;
+    TaskHandle_t handle_task1 = NULL;
+    xTaskCreate(vTask1Code,"Task1",STACK_SIZE,&ucParameterToPass,tskIDLE_PRIORITY,&handle_task1);
+    configASSERT(handle_task1);
+}
+void vTask2Code(void * pVparameters)
+{
+    while(1){
+        printf("Message from task 2...\n");
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+    }
+}
+void createTask2(void){
+    static uint8_t ucParameterToPass;
+    TaskHandle_t handle_task2 = NULL;
+    xTaskCreate(vTask2Code,"Task2",STACK_SIZE,&ucParameterToPass,tskIDLE_PRIORITY,&handle_task2);
+    configASSERT(handle_task2);
+}
+
+
+
 void app_main(void)
 {
     printf("Hello world!\n");
@@ -41,7 +75,8 @@ void app_main(void)
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
     printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
-
+    createTask1();
+    createTask2();
     for (int i = 10; i >= 0; i--) {
         printf("Restarting in %d seconds...\n", i);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
